@@ -11,7 +11,7 @@ To get started with the API, follow these steps:
 
 1.**Clone the repository**:
     
-    `git clone https://github.com/your-username/shopping-api.git cd shopping-api`
+    `git clone https://github.com/AshrafSarsour/shopping-cart cd shopping-cart`
     
 2.**Install Dependencies**:
     
