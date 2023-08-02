@@ -74,23 +74,48 @@ class CartController {
     }
   }
 
-
-
   public getTotalPrice(req: Request, res: Response, next: NextFunction): void {
     try {
-      let totalItems = 0;
+      if (!this.cart || this.cart.length === 0) {
+        sendJsonResponse(res, 200, { success: true, data: { totalItems: 0, totalPrice: 0 } });
+        return;
+      }
+  
+      let totalQty = 0;
       let totalPrice = 0;
+      let totalDiscount = 0;
 
       for (const item of this.cart) {
-        totalItems += item.quantity;
-        totalPrice += item.price * item.quantity;
+        totalQty += item.quantity;
+        totalPrice += item.quantity * item.price;
       }
 
-      sendJsonResponse(res, 200, { success: true, data: { totalItems, totalPrice } });
+      let noOfFreeItems = Math.floor(totalQty / 3);
+
+      if(noOfFreeItems === 0) {
+        sendJsonResponse(res, 200, { success: true, data: { totalQty, totalPrice , totalDiscount} });
+      }
+
+      let orderedItemsByCheapest = this.cart.sort((one, two) => one.price - two.price);
+
+
+      for (let index = 0; index < orderedItemsByCheapest.length; index++) {
+        const item = orderedItemsByCheapest[index];
+        if(item.quantity >= noOfFreeItems) {
+          totalDiscount += item.price * noOfFreeItems;
+          break;
+        }
+
+        totalDiscount += item.price * item.quantity;
+        noOfFreeItems -= item.quantity;
+      }
+
+      totalPrice -=totalDiscount;
+      
+      sendJsonResponse(res, 200, { success: true, data: { totalQty, totalPrice ,totalDiscount} });
     } catch (error) {
       next(error);
     }
   }
 }
-
 export const CartControllerInstance = new CartController();
